@@ -1,1 +1,214 @@
-s
+{
+  "remarks": "@FASServices - 23.227.38.182",
+  "log": {
+    "loglevel": "warning"
+  },
+  "dns": {
+    "hosts": {
+      "geosite:category-ads-all": "127.0.0.1",
+      "geosite:category-ads-ir": "127.0.0.1",
+      "geosite:category-porn": "127.0.0.1"
+    },
+    "servers": [
+      "https://bqugcbysbu.cloudflare-gateway.com/dns-query",
+      {
+        "address": "8.8.8.8",
+        "domains": [
+          "geosite:category-ir",
+          "domain:.ir"
+        ],
+        "expectIPs": [
+          "geoip:ir"
+        ],
+        "port": 53
+      }
+    ],
+    "tag": "dns"
+  },
+  "inbounds": [
+    {
+      "port": 10808,
+      "protocol": "socks",
+      "settings": {
+        "auth": "noauth",
+        "udp": true,
+        "userLevel": 8
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls"
+        ],
+        "enabled": true
+      },
+      "tag": "socks-in"
+    },
+    {
+      "port": 10809,
+      "protocol": "http",
+      "settings": {
+        "auth": "noauth",
+        "udp": true,
+        "userLevel": 8
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls"
+        ],
+        "enabled": true
+      },
+      "tag": "http-in"
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "23.227.38.182",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "",
+                "id": "db17bcfd-8112-4c13-b6a9-b7df74233b03",
+                "level": 8,
+                "security": "auto"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "sockopt": {
+          "dialerProxy": "fragment",
+          "tcpKeepAliveIdle": 100,
+          "tcpNoDelay": true
+        },
+        "tlsSettings": {
+          "allowInsecure": false,
+          "fingerprint": "chrome",
+          "alpn": [
+            "h2",
+            "http/1.1"
+          ],
+          "serverName": "RFerWoRK.FaStERandSaFeR.sa.coM"
+        },
+        "wsSettings": {
+          "headers": {
+            "Host": "rfERWoRK.fAsTERANdSaFer.sa.COm"
+          },
+          "path": "/MuFO1qYBfBWRVhzg?ed=2560"
+        }
+      },
+      "tag": "proxy"
+    },
+    {
+      "tag": "fragment",
+      "protocol": "freedom",
+      "settings": {
+        "fragment": {
+          "packets": "tlshello",
+          "length": "10-20",
+          "interval": "5-5"
+        }
+      },
+      "streamSettings": {
+        "sockopt": {
+          "tcpKeepAliveIdle": 100,
+          "tcpNoDelay": true
+        }
+      }
+    },
+    {
+      "protocol": "dns",
+      "tag": "dns-out"
+    },
+    {
+      "protocol": "freedom",
+      "settings": {},
+      "tag": "direct"
+    },
+    {
+      "protocol": "blackhole",
+      "settings": {
+        "response": {
+          "type": "http"
+        }
+      },
+      "tag": "block"
+    }
+  ],
+  "policy": {
+    "levels": {
+      "8": {
+        "connIdle": 300,
+        "downlinkOnly": 1,
+        "handshake": 4,
+        "uplinkOnly": 1
+      }
+    },
+    "system": {
+      "statsOutboundUplink": true,
+      "statsOutboundDownlink": true
+    }
+  },
+  "routing": {
+    "domainStrategy": "IPIfNonMatch",
+    "rules": [
+      {
+        "ip": [
+          "8.8.8.8"
+        ],
+        "outboundTag": "direct",
+        "port": "53",
+        "type": "field"
+      },
+      {
+        "inboundTag": [
+          "socks-in",
+          "http-in"
+        ],
+        "type": "field",
+        "port": "53",
+        "outboundTag": "dns-out",
+        "enabled": true
+      },
+      {
+        "domain": [
+          "geosite:category-ir",
+          "domain:.ir"
+        ],
+        "outboundTag": "direct",
+        "type": "field"
+      },
+      {
+        "ip": [
+          "geoip:ir",
+          "geoip:private"
+        ],
+        "outboundTag": "direct",
+        "type": "field"
+      },
+      {
+        "domain": [
+          "geosite:category-ads-all",
+          "geosite:category-ads-ir",
+          "geosite:category-porn"
+        ],
+        "outboundTag": "block",
+        "type": "field"
+      },
+      {
+        "outboundTag": "proxy",
+        "type": "field",
+        "network": "tcp,udp"
+      }
+    ]
+  },
+  "stats": {}
+}
